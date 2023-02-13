@@ -164,9 +164,38 @@ func metadata(w http.ResponseWriter, r *http.Request){
 	j := "metadata here we go"
 	fmt.Fprintf(w, j)
 }
+var (
+        username = "abc"
+        password = "123"
+)
+func auth(w http.ResponseWriter, r *http.Request) {
+
+        u, p, ok := r.BasicAuth()
+        if !ok {
+                fmt.Println("Error parsing basic auth")
+                w.WriteHeader(401)
+                return
+        }
+        if u != username {
+                fmt.Printf("Username provided is correct: %s\n", u)
+                w.WriteHeader(401)
+                return
+        }
+        if p != password {
+                fmt.Printf("Password provided is correct: %s\n", u)
+                w.WriteHeader(401)
+                return
+        }
+        fmt.Printf("Username: %s\n", u)
+        fmt.Printf("Password: %s\n", p)
+        w.WriteHeader(200)
+        return
+}
+
 func main() {
 	http.HandleFunc("/", homepage)
 	http.HandleFunc("/j", mockacct)
+	http.HandleFunc("/auth", auth)
 	http.HandleFunc("/sap/opu/odata/sap/ERP_ISU_UMC/$metadata",metadata)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
